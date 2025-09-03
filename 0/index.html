@@ -78,6 +78,32 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
+        .image-comparison {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .image-container {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .image-caption {
+            text-align: center;
+            margin-top: 1rem;
+            font-style: italic;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -121,15 +147,23 @@
 
     <section class="project-part">
         <h2>Part 2: Architectural Perspective Compression</h2>
-        <p>Exploring how focal length affects the perception of depth in urban landscapes. This experiment shows the contrast between compressed perspective in zoomed shots versus the natural perspective in wide-angle shots.</p>
-        <!-- Add your Part 2 photos here -->
+        <div class="image-comparison">
+            <div class="image-container">
+                <img src="media/IMG_2781.jpeg" alt="Zoomed in street view">
+                <p class="image-caption">Zoomed in from far away - Notice how the buildings appear flattened and compressed</p>
+            </div>
+            <div class="image-container">
+                <img src="media/IMG_2784.jpeg" alt="Wide angle street view">
+                <p class="image-caption">Closer view without zoom - Natural depth perspective preserved</p>
+            </div>
+        </div>
     </section>
 
     <section class="project-part">
         <h2>Part 3: The Dolly Zoom</h2>
-        <p>The famous "Vertigo effect" recreated through a series of still photos combined into an animated sequence. This demonstrates the fascinating interplay between camera movement and zoom.</p>
         <div class="gif-container">
             <img src="media/a4xkuz.gif" alt="Dolly Zoom Effect Animation">
+            <p class="image-caption">The "Vertigo effect" - Moving backward while zooming in keeps the subject the same size while the background dramatically changes</p>
         </div>
     </section>
 </body>
