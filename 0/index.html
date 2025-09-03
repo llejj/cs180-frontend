@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS180 Project 0 - Camera Exploration</title>
+    <style>
+        :root {
+            --berkeley-blue: #003262;
+            --berkeley-gold: #FDB515;
+            --text-color: #2A2A2A;
+            --background: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--background);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--berkeley-blue);
+            color: white;
+            border-radius: 8px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--berkeley-gold);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin: 2rem 0 1rem;
+            color: var(--berkeley-blue);
+        }
+
+        .project-info {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .project-part {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .gif-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .gif-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            header {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .project-part {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Project 0: Becoming Friends with Your Camera</h1>
+        <p>CS180: Intro to Computer Vision and Computational Photography</p>
+        <p>University of California, Berkeley</p>
+    </header>
+
+    <div class="project-info">
+        <p><strong>Due Date:</strong> Tuesday, September 2nd, 2025 at 11:59PM</p>
+    </div>
+
+    <section class="project-part">
+        <h2>Overview</h2>
+        <p>This project explores the relationship between perspective, focal length/zoom, and the center of projection through practical photography experiments. Through three distinct parts, we investigate how camera positioning and settings affect image composition and perception.</p>
+    </section>
+
+    <section class="project-part">
+        <h2>Part 1: Selfie - The Wrong Way vs. The Right Way</h2>
+        <p>This section demonstrates the dramatic difference between close-up selfies and properly composed portraits taken from a distance with zoom. The comparison reveals how camera distance affects facial features and overall image quality.</p>
+        <!-- Add your Part 1 photos here -->
+    </section>
+
+    <section class="project-part">
+        <h2>Part 2: Architectural Perspective Compression</h2>
+        <p>Exploring how focal length affects the perception of depth in urban landscapes. This experiment shows the contrast between compressed perspective in zoomed shots versus the natural perspective in wide-angle shots.</p>
+        <!-- Add your Part 2 photos here -->
+    </section>
+
+    <section class="project-part">
+        <h2>Part 3: The Dolly Zoom</h2>
+        <p>The famous "Vertigo effect" recreated through a series of still photos combined into an animated sequence. This demonstrates the fascinating interplay between camera movement and zoom.</p>
+        <div class="gif-container">
+            <img src="media/a4xkuz.gif" alt="Dolly Zoom Effect Animation">
+        </div>
+    </section>
+</body>
+</html>
