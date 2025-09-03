@@ -49,12 +49,6 @@
             color: var(--berkeley-blue);
         }
 
-        .project-info {
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #f5f5f5;
-            border-radius: 8px;
-        }
 
         .project-part {
             margin: 3rem 0;
@@ -88,6 +82,8 @@
         .image-container {
             flex: 1;
             min-width: 300px;
+            max-width: 400px;
+            margin: 0 auto;
         }
 
         .image-container img {
@@ -130,9 +126,6 @@
         <p>University of California, Berkeley</p>
     </header>
 
-    <div class="project-info">
-        <p><strong>Due Date:</strong> Tuesday, September 2nd, 2025 at 11:59PM</p>
-    </div>
 
     <section class="project-part">
         <h2>Overview</h2>
@@ -141,8 +134,16 @@
 
     <section class="project-part">
         <h2>Part 1: Selfie - The Wrong Way vs. The Right Way</h2>
-        <p>This section demonstrates the dramatic difference between close-up selfies and properly composed portraits taken from a distance with zoom. The comparison reveals how camera distance affects facial features and overall image quality.</p>
-        <!-- Add your Part 1 photos here -->
+        <div class="image-comparison">
+            <div class="image-container">
+                <img src="media/IMG_2823.jpeg" alt="Close-up selfie portrait">
+                <p class="image-caption">Close-up selfie - Notice the distorted facial features from being too close</p>
+            </div>
+            <div class="image-container">
+                <img src="media/IMG_2819.jpeg" alt="Proper distance portrait with zoom">
+                <p class="image-caption">Taken from further away with zoom - Natural facial proportions preserved</p>
+            </div>
+        </div>
     </section>
 
     <section class="project-part">
