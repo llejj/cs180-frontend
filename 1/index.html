@@ -135,7 +135,7 @@
             <li>Recursively downscales images by a factor of 2</li>
             <li>Starts alignment at the coarsest level</li>
             <li>Refines alignment at each subsequent level</li>
-            <li>Uses a smaller search window ([-8, 8]) around the scaled-up alignment from the previous level</li>
+            <li>Searches for the best alignment within a [-8, 8] pixel window around the scaled-up alignment from the previous level</li>
         </ul>
 
         <h2>Results</h2>
@@ -189,13 +189,13 @@
                 <td>Excellent alignment</td>
             </tr>
             <tr>
-                <td>harvesters.jpg</td>
+                <td>harvesters.tif</td>
                 <td>(-12, 6)</td>
                 <td>(-24, 12)</td>
                 <td>Good alignment with minor artifacts</td>
             </tr>
             <tr>
-                <td>emir.jpg</td>
+                <td>emir.tif</td>
                 <td>(-8, 4)</td>
                 <td>(-16, 8)</td>
                 <td>Challenging due to different channel intensities</td>
@@ -206,7 +206,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/emir.jpg" alt="Original emir image">
-                <p class="caption">Original emir.jpg (stacked RGB channels)</p>
+                <p class="caption">Original emir.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_emir.jpg" alt="Aligned emir image">
@@ -274,7 +274,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/emir.jpg" alt="Original emir image">
-                <p class="caption">Original emir.jpg</p>
+                <p class="caption">Original emir.tif</p>
             </div>
             <div>
                 <img src="media/results/out_emir.jpg" alt="Aligned emir image">
@@ -286,7 +286,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/harvesters.jpg" alt="Original harvesters image">
-                <p class="caption">Original harvesters.jpg</p>
+                <p class="caption">Original harvesters.tif</p>
             </div>
             <div>
                 <img src="media/results/out_harvesters.jpg" alt="Aligned harvesters image">
@@ -298,7 +298,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/icon.jpg" alt="Original icon image">
-                <p class="caption">Original icon.jpg</p>
+                <p class="caption">Original icon.tif</p>
             </div>
             <div>
                 <img src="media/results/out_icon.jpg" alt="Aligned icon image">
@@ -310,7 +310,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/italil.jpg" alt="Original italil image">
-                <p class="caption">Original italil.jpg</p>
+                <p class="caption">Original italil.tif</p>
             </div>
             <div>
                 <img src="media/results/out_italil.jpg" alt="Aligned italil image">
@@ -322,7 +322,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/lastochikino.jpg" alt="Original lastochikino image">
-                <p class="caption">Original lastochikino.jpg</p>
+                <p class="caption">Original lastochikino.tif</p>
             </div>
             <div>
                 <img src="media/results/out_lastochikino.jpg" alt="Aligned lastochikino image">
@@ -334,7 +334,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/lugano.jpg" alt="Original lugano image">
-                <p class="caption">Original lugano.jpg</p>
+                <p class="caption">Original lugano.tif</p>
             </div>
             <div>
                 <img src="media/results/out_lugano.jpg" alt="Aligned lugano image">
@@ -346,7 +346,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/melons.jpg" alt="Original melons image">
-                <p class="caption">Original melons.jpg</p>
+                <p class="caption">Original melons.tif</p>
             </div>
             <div>
                 <img src="media/results/out_melons.jpg" alt="Aligned melons image">
@@ -358,7 +358,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/self_portrait.jpg" alt="Original self portrait image">
-                <p class="caption">Original self_portrait.jpg</p>
+                <p class="caption">Original self_portrait.tif</p>
             </div>
             <div>
                 <img src="media/results/out_self_portrait.jpg" alt="Aligned self portrait image">
@@ -370,7 +370,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/siren.jpg" alt="Original siren image">
-                <p class="caption">Original siren.jpg</p>
+                <p class="caption">Original siren.tif</p>
             </div>
             <div>
                 <img src="media/results/out_siren.jpg" alt="Aligned siren image">
@@ -382,7 +382,7 @@
         <div class="image-comparison">
             <div>
                 <img src="media/data/three_generations.jpg" alt="Original three generations image">
-                <p class="caption">Original three_generations.jpg</p>
+                <p class="caption">Original three_generations.tif</p>
             </div>
             <div>
                 <img src="media/results/out_three_generations.jpg" alt="Aligned three generations image">
@@ -406,7 +406,7 @@
         <p>
             The implemented algorithm successfully colorized the Prokudin-Gorskii photo collection, with particularly
             good results on the smaller test images (monastery.jpg, cathedral.jpg). The multi-scale pyramid approach
-            effectively handled the larger TIF files, though some challenging cases like emir.jpg required special
+            effectively handled the larger TIF files, though some challenging cases like emir.tif required special
             consideration due to intensity variations between channels.
         </p>
         <p>
