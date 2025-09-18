@@ -101,12 +101,12 @@
             Sergei Mikhailovich Prokudin-Gorskii (1863-1944) was a pioneering photographer who developed a unique method
             for creating color photographs in the early 1900s. His technique involved capturing three separate exposures
             of each scene through red, green, and blue filters. These images were recorded onto glass plates as a single,
-            vertically-stacked black and white negative.
+            vertically-stacked black and white negative. Despite the inability to print color photographs at the time,
+            he recognized the future potential of his method and documented the Russian Empire in color.
         </p>
         <p>
             This project aims to digitally process and combine these historical glass plate images to reconstruct their
-            original color appearance. The challenge lies in properly aligning the three color channels, as even slight
-            misalignments can result in color artifacts and blurring in the final image. We will assume that a simple x,y
+            original color appearance. The challenge lies in properly aligning the three color channels, as misalignments will result in color artifacts and blurring in the final image. We will assume that a simple x,y
             translation model is sufficient for proper alignment.
         </p>
 
@@ -119,35 +119,11 @@
         <ul>
             <li>Splits the input image into three equal parts (B, G, R channels)</li>
             <li>Uses the blue channel as the reference</li>
-            <li>Aligns the green and red channels to the blue channel using either:
-                <ul>
-                    <li>L2 norm (Euclidean distance)</li>
-                    <li>Normalized Cross-Correlation (NCC)</li>
-                </ul>
-            </li>
-            <li>Searches for the best alignment within a [-15, 15] pixel window</li>
+            <li>Aligns the green and red channels to the blue channel using Normalized Cross-Correlation (NCC), searching for the best alignment within a [-15, 15] pixel offset window</li>
+            <ul>
+                <li>Edge cropping (10%) during alignment to reduce edge effects by computing alignment metrics only on interior pixels, ignoring border regions</li>
+            </ul>
         </ul>
-
-        <h4>Alignment Metrics</h4>
-        <p>
-            Two alignment metrics were implemented and compared:
-        </p>
-        <ol>
-            <li>
-                <strong>L2 Norm (Euclidean Distance):</strong>
-                <p>
-                    Computed as <code>sqrt(sum((image1-image2)^2))</code>. This metric is simple but can be sensitive
-                    to intensity differences between channels.
-                </p>
-            </li>
-            <li>
-                <strong>Normalized Cross-Correlation (NCC):</strong>
-                <p>
-                    Implemented as a normalized dot product between the images. This metric proved more robust,
-                    especially for images with different channel intensities.
-                </p>
-            </li>
-        </ol>
 
         <h3>2.2 Results</h3>
         <div class="image-comparison">
@@ -196,17 +172,7 @@
             <li>Searches for the best alignment within a [-8, 8] pixel window around the scaled-up alignment from the previous level</li>
         </ul>
 
-        <h4>Optimization Techniques</h4>
-        <ul>
-            <li>Edge cropping (10%) during alignment to reduce edge effects</li>
-            <li>Pyramid-based coarse-to-fine alignment for efficient processing of large images</li>
-            <li>Adaptive search windows based on previous pyramid level results</li>
-        </ul>
-
         <h3>3.2 Results</h3>
-        <p>
-            The multi-scale pyramid approach was tested on all provided images. Below are the results showing both the original glass plate images and their colorized versions:
-        </p>
 
         <div class="image-comparison">
             <div>
@@ -215,7 +181,7 @@
             </div>
             <div>
                 <img src="media/results/out_emir.jpg" alt="Aligned emir image">
-                <p class="caption">Aligned and colorized result</p>
+                <p class="caption">Aligned and colorized result. Note that the images to be matched do not actually have the same brightness values (they are different color channels), so NCC is not a good metric to use here. Using edge detection before NCC might address this issue.</p>
             </div>
         </div>
 
@@ -329,13 +295,11 @@
             </li>
             <li>
                 <strong>Multi-Scale Pyramid:</strong> Effectively handled larger TIF files through efficient coarse-to-fine
-                alignment, though some challenging cases like emir.tif required special handling due to intensity variations.
+                alignment.
             </li>
         </ul>
         <p>
-            The combination of NCC metric with pyramid-based alignment proved robust and computationally efficient,
-            successfully processing images of various sizes and characteristics. The adaptive search windows and edge
-            cropping optimizations further improved the quality of the results.
+            The combination of NCC metric with pyramid-based alignment proved computationally efficient and produced good results. It was very cool to align these images that Sergei Mikhailovich Prokudin-Gorskii took over 100 years ago.
         </p>
     </div>
 </body>
