@@ -114,16 +114,46 @@
         
         <h3>2.1 Implementation</h3>
         <p>
-            The single-scale approach implements a straightforward alignment method with the following steps:
+            The single-scale approach implements a direct pixel-wise alignment method optimized for the smaller JPG images in the collection. This method balances accuracy with computational efficiency through careful choice of alignment metrics and search parameters.
         </p>
+
+        <h4>Key Components:</h4>
         <ul>
-            <li>Splits the input image into three equal parts (B, G, R channels)</li>
-            <li>Uses the blue channel as the reference</li>
-            <li>Aligns the green and red channels to the blue channel using Normalized Cross-Correlation (NCC), searching for the best alignment within a [-15, 15] pixel offset window</li>
-            <ul>
-                <li>Edge cropping (10%) during alignment to reduce edge effects by computing alignment metrics only on interior pixels, ignoring border regions</li>
-            </ul>
+            <li><strong>Channel Separation:</strong>
+                <ul>
+                    <li>Input image is split into three equal vertical sections</li>
+                    <li>Each section corresponds to B, G, R color channels from top to bottom</li>
+                    <li>Images are normalized to float values in [0,1] range for consistent processing</li>
+                </ul>
+            </li>
+            
+            <li><strong>Reference Selection:</strong>
+                <ul>
+                    <li>Blue channel chosen as the reference frame</li>
+                    <li>Green and red channels are aligned to this reference</li>
+                </ul>
+            </li>
+            
+            <li><strong>Alignment Metric:</strong>
+                <ul>
+                    <li>Normalized Cross-Correlation (NCC) used as primary alignment metric</li>
+                    <li>NCC is robust to intensity variations between channels</li>
+                    <li>Edge cropping (10%) during NCC computation to reduce edge effects by computing alignment metrics only on interior pixels, ignoring border regions</li>
+                </ul>
+            </li>
+            
+            <li><strong>Search Strategy:</strong>
+                <ul>
+                    <li>Comprehensive search within [-15, 15] pixel window for both x and y directions</li>
+                    <li>Window size chosen based on typical misalignment observed in the dataset</li>
+                    <li>Exhaustive search ensures finding global optimum within search range</li>
+                </ul>
+            </li>
         </ul>
+
+        <p>
+            This implementation is effective for the smaller JPG images (monastery.jpg, cathedral.jpg, tobolsk.jpg). The combination of NCC with edge cropping produces decent results.
+        </p>
 
         <h3>2.2 Results</h3>
         <div class="image-comparison">
@@ -163,14 +193,37 @@
         
         <h3>3.1 Implementation</h3>
         <p>
-            To handle the larger TIF images efficiently, a multi-scale pyramid approach was implemented with the following key features:
+            To handle the larger TIF images efficiently, a multi-scale pyramid approach was implemented. This method progressively builds a pyramid of images at different resolutions, allowing for a coarse-to-fine alignment strategy that is both computationally efficient and robust.
         </p>
+
+        <h4>Key Components:</h4>
         <ul>
-            <li>Recursively downscales images by a factor of 2</li>
-            <li>Starts alignment at the coarsest level</li>
-            <li>Refines alignment at each subsequent level</li>
-            <li>Searches for the best alignment within a [-8, 8] pixel window around the scaled-up alignment from the previous level</li>
+            <li><strong>Pyramid Construction:</strong>
+                <ul>
+                    <li>Images are recursively downscaled by a factor of 2 using skimage.transform.rescale</li>
+                    <li>Downscaling continues until reaching base resolution (128x128 pixels)</li>
+                    <li>This creates a pyramid where each level is half the size of the previous</li>
+                </ul>
+            </li>
+            <li><strong>Alignment Process:</strong>
+                <ul>
+                    <li>Base case: At the coarsest level, performs [-8, 8] pixel search</li>
+                    <li>Recursive refinement: Each level scales up previous alignment by 2</li>
+                    <li>Local refinement: Searches [-8, 8] window around scaled-up coordinates</li>
+                </ul>
+            </li>
+            <li><strong>Advantages:</strong>
+                <ul>
+                    <li>Computational efficiency: Majority of searches performed on smaller images</li>
+                    <li>Robustness: Coarse alignment helps avoid local minima</li>
+                    <li>Precision: Fine-level refinement maintains alignment accuracy</li>
+                </ul>
+            </li>
         </ul>
+
+        <p>
+            The algorithm begins at the coarsest pyramid level where the image is smallest, making the initial alignment computationally efficient. At each subsequent level, the alignment from the previous level is scaled up by a factor of 2 to account for the increase in image size. This scaled alignment serves as an initial guess, around which a smaller [-8, 8] pixel window is searched for refinement. This progressive refinement strategy ensures both efficiency and accuracy.
+        </p>
 
         <h3>3.2 Results</h3>
 
