@@ -96,7 +96,7 @@
     <div class="container">
         <h1>Project 1: Colorizing the Prokudin-Gorskii Photo Collection</h1>
         
-        <h2>Background</h2>
+        <h2>1. Background</h2>
         <p>
             Sergei Mikhailovich Prokudin-Gorskii (1863-1944) was a pioneering photographer who developed a unique method
             for creating color photographs in the early 1900s. His technique involved capturing three separate exposures
@@ -110,11 +110,11 @@
             translation model is sufficient for proper alignment.
         </p>
 
-        <h2>Implementation Approach</h2>
+        <h2>2. Single-Scale Image Alignment</h2>
         
-        <h3>1. Single-Scale Alignment</h3>
+        <h3>2.1 Implementation</h3>
         <p>
-            The initial approach uses a simple single-scale alignment method that:
+            The single-scale approach implements a straightforward alignment method with the following steps:
         </p>
         <ul>
             <li>Splits the input image into three equal parts (B, G, R channels)</li>
@@ -128,20 +128,28 @@
             <li>Searches for the best alignment within a [-15, 15] pixel window</li>
         </ul>
 
-        <h3>2. Multi-Scale Pyramid Alignment</h3>
+        <h4>Alignment Metrics</h4>
         <p>
-            To handle the larger TIF images efficiently, a multi-scale pyramid approach was implemented:
+            Two alignment metrics were implemented and compared:
         </p>
-        <ul>
-            <li>Recursively downscales images by a factor of 2</li>
-            <li>Starts alignment at the coarsest level</li>
-            <li>Refines alignment at each subsequent level</li>
-            <li>Searches for the best alignment within a [-8, 8] pixel window around the scaled-up alignment from the previous level</li>
-        </ul>
+        <ol>
+            <li>
+                <strong>L2 Norm (Euclidean Distance):</strong>
+                <p>
+                    Computed as <code>sqrt(sum((image1-image2)^2))</code>. This metric is simple but can be sensitive
+                    to intensity differences between channels.
+                </p>
+            </li>
+            <li>
+                <strong>Normalized Cross-Correlation (NCC):</strong>
+                <p>
+                    Implemented as a normalized dot product between the images. This metric proved more robust,
+                    especially for images with different channel intensities.
+                </p>
+            </li>
+        </ol>
 
-        <h2>Results</h2>
-
-        <h3>Single-Scale Results</h3>
+        <h3>2.2 Results</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/monastery.jpg" alt="Original monastery image">
@@ -164,46 +172,42 @@
             </div>
         </div>
 
-        <h3>Multi-Scale Pyramid Results</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/tobolsk.jpg" alt="Original tobolsk image">
+                <p class="caption">Original tobolsk.jpg (stacked RGB channels)</p>
+            </div>
+            <div>
+                <img src="media/results/out_tobolsk.jpg" alt="Aligned tobolsk image">
+                <p class="caption">Aligned and colorized result</p>
+            </div>
+        </div>
+
+        <h2>3. Multi-Scale Pyramid Alignment</h2>
+        
+        <h3>3.1 Implementation</h3>
         <p>
-            The multi-scale pyramid approach was tested on all provided images. Here are some notable results
-            with their computed alignment offsets:
+            To handle the larger TIF images efficiently, a multi-scale pyramid approach was implemented with the following key features:
+        </p>
+        <ul>
+            <li>Recursively downscales images by a factor of 2</li>
+            <li>Starts alignment at the coarsest level</li>
+            <li>Refines alignment at each subsequent level</li>
+            <li>Searches for the best alignment within a [-8, 8] pixel window around the scaled-up alignment from the previous level</li>
+        </ul>
+
+        <h4>Optimization Techniques</h4>
+        <ul>
+            <li>Edge cropping (10%) during alignment to reduce edge effects</li>
+            <li>Pyramid-based coarse-to-fine alignment for efficient processing of large images</li>
+            <li>Adaptive search windows based on previous pyramid level results</li>
+        </ul>
+
+        <h3>3.2 Results</h3>
+        <p>
+            The multi-scale pyramid approach was tested on all provided images. Below are the results showing both the original glass plate images and their colorized versions:
         </p>
 
-        <table>
-            <tr>
-                <th>Image</th>
-                <th>Green Channel Offset (x,y)</th>
-                <th>Red Channel Offset (x,y)</th>
-                <th>Notes</th>
-            </tr>
-            <tr>
-                <td>cathedral.jpg</td>
-                <td>(-4, 2)</td>
-                <td>(-8, 4)</td>
-                <td>Excellent alignment</td>
-            </tr>
-            <tr>
-                <td>monastery.jpg</td>
-                <td>(-2, 1)</td>
-                <td>(-4, 2)</td>
-                <td>Excellent alignment</td>
-            </tr>
-            <tr>
-                <td>harvesters.tif</td>
-                <td>(-12, 6)</td>
-                <td>(-24, 12)</td>
-                <td>Good alignment with minor artifacts</td>
-            </tr>
-            <tr>
-                <td>emir.tif</td>
-                <td>(-8, 4)</td>
-                <td>(-16, 8)</td>
-                <td>Challenging due to different channel intensities</td>
-            </tr>
-        </table>
-
-        <h3>Large-Scale Results</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/emir.jpg" alt="Original emir image">
@@ -215,204 +219,123 @@
             </div>
         </div>
 
-        <h2>Implementation Details</h2>
-        <h3>Alignment Metrics</h3>
-        <p>
-            Two alignment metrics were implemented and compared:
-        </p>
-        <ol>
-            <li>
-                <strong>L2 Norm (Euclidean Distance):</strong>
-                <p>
-                    Computed as <code>sqrt(sum((image1-image2)^2))</code>. This metric is simple but can be sensitive
-                    to intensity differences between channels.
-                </p>
-            </li>
-            <li>
-                <strong>Normalized Cross-Correlation (NCC):</strong>
-                <p>
-                    Implemented as a normalized dot product between the images. This metric proved more robust,
-                    especially for images with different channel intensities like emir.jpg.
-                </p>
-            </li>
-        </ol>
-
-        <h3>Optimization Techniques</h3>
-        <ul>
-            <li>Edge cropping (10%) during alignment to reduce edge effects</li>
-            <li>Pyramid-based coarse-to-fine alignment for efficient processing of large images</li>
-            <li>Adaptive search windows based on previous pyramid level results</li>
-        </ul>
-
-        <h2>Complete Results Gallery</h2>
-        <p>Below are all the images from the Prokudin-Gorskii collection that were processed, showing both the original glass plate images and their colorized results:</p>
-
-        <h3>Cathedral</h3>
-        <div class="image-comparison">
-            <div>
-                <img src="media/data/cathedral.jpg" alt="Original cathedral image">
-                <p class="caption">Original cathedral.jpg</p>
-            </div>
-            <div>
-                <img src="media/results/out_cathedral.jpg" alt="Aligned cathedral image">
-                <p class="caption">Colorized Result</p>
-            </div>
-        </div>
-
-        <h3>Monastery</h3>
-        <div class="image-comparison">
-            <div>
-                <img src="media/data/monastery.jpg" alt="Original monastery image">
-                <p class="caption">Original monastery.jpg</p>
-            </div>
-            <div>
-                <img src="media/results/out_monastery.jpg" alt="Aligned monastery image">
-                <p class="caption">Colorized Result</p>
-            </div>
-        </div>
-
-        <h3>Emir of Bukhara</h3>
-        <div class="image-comparison">
-            <div>
-                <img src="media/data/emir.jpg" alt="Original emir image">
-                <p class="caption">Original emir.tif</p>
-            </div>
-            <div>
-                <img src="media/results/out_emir.jpg" alt="Aligned emir image">
-                <p class="caption">Colorized Result</p>
-            </div>
-        </div>
-
-        <h3>Harvesters</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/harvesters.jpg" alt="Original harvesters image">
-                <p class="caption">Original harvesters.tif</p>
+                <p class="caption">Original harvesters.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_harvesters.jpg" alt="Aligned harvesters image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Icon</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/icon.jpg" alt="Original icon image">
-                <p class="caption">Original icon.tif</p>
+                <p class="caption">Original icon.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_icon.jpg" alt="Aligned icon image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Italil</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/italil.jpg" alt="Original italil image">
-                <p class="caption">Original italil.tif</p>
+                <p class="caption">Original italil.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_italil.jpg" alt="Aligned italil image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Lastochikino</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/lastochikino.jpg" alt="Original lastochikino image">
-                <p class="caption">Original lastochikino.tif</p>
+                <p class="caption">Original lastochikino.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_lastochikino.jpg" alt="Aligned lastochikino image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Lugano</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/lugano.jpg" alt="Original lugano image">
-                <p class="caption">Original lugano.tif</p>
+                <p class="caption">Original lugano.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_lugano.jpg" alt="Aligned lugano image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Melons</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/melons.jpg" alt="Original melons image">
-                <p class="caption">Original melons.tif</p>
+                <p class="caption">Original melons.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_melons.jpg" alt="Aligned melons image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Self Portrait</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/self_portrait.jpg" alt="Original self portrait image">
-                <p class="caption">Original self_portrait.tif</p>
+                <p class="caption">Original self_portrait.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_self_portrait.jpg" alt="Aligned self portrait image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Siren</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/siren.jpg" alt="Original siren image">
-                <p class="caption">Original siren.tif</p>
+                <p class="caption">Original siren.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_siren.jpg" alt="Aligned siren image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Three Generations</h3>
         <div class="image-comparison">
             <div>
                 <img src="media/data/three_generations.jpg" alt="Original three generations image">
-                <p class="caption">Original three_generations.tif</p>
+                <p class="caption">Original three_generations.tif (stacked RGB channels)</p>
             </div>
             <div>
                 <img src="media/results/out_three_generations.jpg" alt="Aligned three generations image">
-                <p class="caption">Colorized Result</p>
+                <p class="caption">Aligned and colorized result</p>
             </div>
         </div>
 
-        <h3>Tobolsk</h3>
-        <div class="image-comparison">
-            <div>
-                <img src="media/data/tobolsk.jpg" alt="Original tobolsk image">
-                <p class="caption">Original tobolsk.jpg</p>
-            </div>
-            <div>
-                <img src="media/results/out_tobolsk.jpg" alt="Aligned tobolsk image">
-                <p class="caption">Colorized Result</p>
-            </div>
-        </div>
-
-        <h2>Conclusions</h2>
+        <h2>4. Conclusions</h2>
         <p>
-            The implemented algorithm successfully colorized the Prokudin-Gorskii photo collection, with particularly
-            good results on the smaller test images (monastery.jpg, cathedral.jpg). The multi-scale pyramid approach
-            effectively handled the larger TIF files, though some challenging cases like emir.tif required special
-            consideration due to intensity variations between channels.
+            The implemented algorithm successfully colorized the Prokudin-Gorskii photo collection using two different approaches:
         </p>
+        <ul>
+            <li>
+                <strong>Single-Scale Alignment:</strong> Provided excellent results for smaller images (monastery.jpg, cathedral.jpg)
+                using direct pixel-wise alignment with NCC metric.
+            </li>
+            <li>
+                <strong>Multi-Scale Pyramid:</strong> Effectively handled larger TIF files through efficient coarse-to-fine
+                alignment, though some challenging cases like emir.tif required special handling due to intensity variations.
+            </li>
+        </ul>
         <p>
             The combination of NCC metric with pyramid-based alignment proved robust and computationally efficient,
-            successfully processing images of various sizes and characteristics.
+            successfully processing images of various sizes and characteristics. The adaptive search windows and edge
+            cropping optimizations further improved the quality of the results.
         </p>
     </div>
 </body>
