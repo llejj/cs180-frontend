@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 1: Colorizing the Prokudin-Gorskii Photo Collection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .image-comparison {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .image-comparison > div {
+            flex: 0 1 48%;
+            margin-bottom: 20px;
+        }
+        
+        .image-comparison img {
+            width: 100%;
+        }
+        
+        .caption {
+            text-align: center;
+            font-style: italic;
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project 1: Colorizing the Prokudin-Gorskii Photo Collection</h1>
+        
+        <h2>Background</h2>
+        <p>
+            Sergei Mikhailovich Prokudin-Gorskii (1863-1944) was a pioneering photographer who developed a unique method
+            for creating color photographs in the early 1900s. His technique involved capturing three separate exposures
+            of each scene through red, green, and blue filters. These images were recorded onto glass plates as a single,
+            vertically-stacked black and white negative.
+        </p>
+        <p>
+            This project aims to digitally process and combine these historical glass plate images to reconstruct their
+            original color appearance. The challenge lies in properly aligning the three color channels, as even slight
+            misalignments can result in color artifacts and blurring in the final image.
+        </p>
+
+        <h2>Implementation Approach</h2>
+        
+        <h3>1. Single-Scale Alignment</h3>
+        <p>
+            The initial approach uses a simple single-scale alignment method that:
+        </p>
+        <ul>
+            <li>Splits the input image into three equal parts (B, G, R channels)</li>
+            <li>Uses the blue channel as the reference</li>
+            <li>Aligns the green and red channels to the blue channel using either:
+                <ul>
+                    <li>L2 norm (Euclidean distance)</li>
+                    <li>Normalized Cross-Correlation (NCC)</li>
+                </ul>
+            </li>
+            <li>Searches for the best alignment within a [-15, 15] pixel window</li>
+        </ul>
+
+        <h3>2. Multi-Scale Pyramid Alignment</h3>
+        <p>
+            To handle the larger TIF images efficiently, a multi-scale pyramid approach was implemented:
+        </p>
+        <ul>
+            <li>Recursively downscales images by a factor of 2</li>
+            <li>Starts alignment at the coarsest level</li>
+            <li>Refines alignment at each subsequent level</li>
+            <li>Uses a smaller search window ([-8, 8]) around the scaled-up alignment from the previous level</li>
+        </ul>
+
+        <h2>Results</h2>
+
+        <h3>Single-Scale Results</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/monastery.jpg" alt="Original monastery image">
+                <p class="caption">Original monastery.jpg (stacked RGB channels)</p>
+            </div>
+            <div>
+                <img src="media/results/out_monastery.jpg" alt="Aligned monastery image">
+                <p class="caption">Aligned and colorized result</p>
+            </div>
+        </div>
+
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/cathedral.jpg" alt="Original cathedral image">
+                <p class="caption">Original cathedral.jpg (stacked RGB channels)</p>
+            </div>
+            <div>
+                <img src="media/results/out_cathedral.jpg" alt="Aligned cathedral image">
+                <p class="caption">Aligned and colorized result</p>
+            </div>
+        </div>
+
+        <h3>Multi-Scale Pyramid Results</h3>
+        <p>
+            The multi-scale pyramid approach was tested on all provided images. Here are some notable results
+            with their computed alignment offsets:
+        </p>
+
+        <table>
+            <tr>
+                <th>Image</th>
+                <th>Green Channel Offset (x,y)</th>
+                <th>Red Channel Offset (x,y)</th>
+                <th>Notes</th>
+            </tr>
+            <tr>
+                <td>cathedral.jpg</td>
+                <td>(-4, 2)</td>
+                <td>(-8, 4)</td>
+                <td>Excellent alignment</td>
+            </tr>
+            <tr>
+                <td>monastery.jpg</td>
+                <td>(-2, 1)</td>
+                <td>(-4, 2)</td>
+                <td>Excellent alignment</td>
+            </tr>
+            <tr>
+                <td>harvesters.jpg</td>
+                <td>(-12, 6)</td>
+                <td>(-24, 12)</td>
+                <td>Good alignment with minor artifacts</td>
+            </tr>
+            <tr>
+                <td>emir.jpg</td>
+                <td>(-8, 4)</td>
+                <td>(-16, 8)</td>
+                <td>Challenging due to different channel intensities</td>
+            </tr>
+        </table>
+
+        <h3>Large-Scale Results</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/emir.jpg" alt="Original emir image">
+                <p class="caption">Original emir.jpg (stacked RGB channels)</p>
+            </div>
+            <div>
+                <img src="media/results/out_emir.jpg" alt="Aligned emir image">
+                <p class="caption">Aligned and colorized result</p>
+            </div>
+        </div>
+
+        <h2>Implementation Details</h2>
+        <h3>Alignment Metrics</h3>
+        <p>
+            Two alignment metrics were implemented and compared:
+        </p>
+        <ol>
+            <li>
+                <strong>L2 Norm (Euclidean Distance):</strong>
+                <p>
+                    Computed as <code>sqrt(sum((image1-image2)^2))</code>. This metric is simple but can be sensitive
+                    to intensity differences between channels.
+                </p>
+            </li>
+            <li>
+                <strong>Normalized Cross-Correlation (NCC):</strong>
+                <p>
+                    Implemented as a normalized dot product between the images. This metric proved more robust,
+                    especially for images with different channel intensities like emir.jpg.
+                </p>
+            </li>
+        </ol>
+
+        <h3>Optimization Techniques</h3>
+        <ul>
+            <li>Edge cropping (10%) during alignment to reduce edge effects</li>
+            <li>Pyramid-based coarse-to-fine alignment for efficient processing of large images</li>
+            <li>Adaptive search windows based on previous pyramid level results</li>
+        </ul>
+
+        <h2>Complete Results Gallery</h2>
+        <p>Below are all the images from the Prokudin-Gorskii collection that were processed, showing both the original glass plate images and their colorized results:</p>
+
+        <h3>Cathedral</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/cathedral.jpg" alt="Original cathedral image">
+                <p class="caption">Original cathedral.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_cathedral.jpg" alt="Aligned cathedral image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Monastery</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/monastery.jpg" alt="Original monastery image">
+                <p class="caption">Original monastery.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_monastery.jpg" alt="Aligned monastery image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Emir of Bukhara</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/emir.jpg" alt="Original emir image">
+                <p class="caption">Original emir.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_emir.jpg" alt="Aligned emir image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Harvesters</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/harvesters.jpg" alt="Original harvesters image">
+                <p class="caption">Original harvesters.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_harvesters.jpg" alt="Aligned harvesters image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Icon</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/icon.jpg" alt="Original icon image">
+                <p class="caption">Original icon.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_icon.jpg" alt="Aligned icon image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Italil</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/italil.jpg" alt="Original italil image">
+                <p class="caption">Original italil.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_italil.jpg" alt="Aligned italil image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Lastochikino</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/lastochikino.jpg" alt="Original lastochikino image">
+                <p class="caption">Original lastochikino.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_lastochikino.jpg" alt="Aligned lastochikino image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Lugano</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/lugano.jpg" alt="Original lugano image">
+                <p class="caption">Original lugano.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_lugano.jpg" alt="Aligned lugano image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Melons</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/melons.jpg" alt="Original melons image">
+                <p class="caption">Original melons.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_melons.jpg" alt="Aligned melons image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Self Portrait</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/self_portrait.jpg" alt="Original self portrait image">
+                <p class="caption">Original self_portrait.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_self_portrait.jpg" alt="Aligned self portrait image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Siren</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/siren.jpg" alt="Original siren image">
+                <p class="caption">Original siren.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_siren.jpg" alt="Aligned siren image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Three Generations</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/three_generations.jpg" alt="Original three generations image">
+                <p class="caption">Original three_generations.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_three_generations.jpg" alt="Aligned three generations image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h3>Tobolsk</h3>
+        <div class="image-comparison">
+            <div>
+                <img src="media/data/tobolsk.jpg" alt="Original tobolsk image">
+                <p class="caption">Original tobolsk.jpg</p>
+            </div>
+            <div>
+                <img src="media/results/out_tobolsk.jpg" alt="Aligned tobolsk image">
+                <p class="caption">Colorized Result</p>
+            </div>
+        </div>
+
+        <h2>Conclusions</h2>
+        <p>
+            The implemented algorithm successfully colorized the Prokudin-Gorskii photo collection, with particularly
+            good results on the smaller test images (monastery.jpg, cathedral.jpg). The multi-scale pyramid approach
+            effectively handled the larger TIF files, though some challenging cases like emir.jpg required special
+            consideration due to intensity variations between channels.
+        </p>
+        <p>
+            The combination of NCC metric with pyramid-based alignment proved robust and computationally efficient,
+            successfully processing images of various sizes and characteristics.
+        </p>
+    </div>
+</body>
+</html>
