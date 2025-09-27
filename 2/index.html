@@ -402,7 +402,7 @@ def convolve2d_2loops(image, kernel):
             To evaluate the effectiveness of unsharp masking, we took a sharp image (bird), artificially blurred it, then attempted to sharpen it again:
         </p>
 
-        <div class="image-comparison">
+        <div class="image-grid">
             <div>
                 <img src="bird.jpg" alt="Original sharp bird">
                 <p class="caption">Original Sharp Image</p>
@@ -410,13 +410,6 @@ def convolve2d_2loops(image, kernel):
             <div>
                 <img src="results/bird_blurred.png" alt="Artificially blurred bird">
                 <p class="caption">Artificially Blurred</p>
-            </div>
-        </div>
-
-        <div class="image-comparison">
-            <div>
-                <img src="results/bird_blurred.png" alt="Blurred bird">
-                <p class="caption">Blurred Version</p>
             </div>
             <div>
                 <img src="results/bird_blurred_unsharp_mask.png" alt="Re-sharpened bird">
