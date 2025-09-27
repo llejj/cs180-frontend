@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Project 2: Fun with Filters and Frequencies!</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -80,15 +81,24 @@
             color: #666;
         }
         
-        .code-block {
+        pre {
             background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
             font-size: 14px;
+            line-height: 1.4;
             overflow-x: auto;
             margin: 20px 0;
             border-left: 4px solid #2c3e50;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
         }
         
         code {
@@ -152,8 +162,7 @@
             First, let's implement 2D convolution with both four loops and two loops, including proper padding with zero fill values. We'll compare our implementations with the built-in <code>scipy.signal.convolve2d</code> function.
         </p>
 
-        <div class="code-block">
-def convolve2d_4loops(image, kernel):
+        <pre><code class="language-python">def convolve2d_4loops(image, kernel):
     # Get dimensions
     img_h, img_w = image.shape
     ker_h, ker_w = kernel.shape
@@ -214,8 +223,7 @@ def convolve2d_2loops(image, kernel):
             patch = padded_img[i:i+ker_h, j:j+ker_w]
             output[i, j] = np.sum(patch * flipped_kernel)
     
-    return output
-        </div>
+    return output</code></pre>
 
         <p>
             Performance comparison on a grayscale portrait image with different filters:
@@ -255,22 +263,6 @@ def convolve2d_2loops(image, kernel):
             Now we'll compute partial derivatives of the cameraman image using finite difference operators D_x = [1, 0, -1] and D_y = [[1], [0], [-1]], then compute the gradient magnitude and create edge images through binarization.
         </p>
 
-        <div class="code-block">
-# Define kernels
-Dx = np.array([[1, 0, -1]])
-Dy = np.array([[1], [0], [-1]])
-
-# Partial Derivatives
-Dx_im = scipy.signal.convolve2d(im, Dx, mode='same')
-Dy_im = scipy.signal.convolve2d(im, Dy, mode='same')
-
-# Gradient magnitude
-grad_mag = np.sqrt(Dx_im**2 + Dy_im**2)
-
-# Binarize gradient for different thresholds
-for thresh in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]:
-    binary_im = (grad_mag > thresh).astype(np.uint8) * 255
-        </div>
 
         <div class="image-grid">
             <div>
@@ -320,22 +312,6 @@ for thresh in [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]:
             The results with just the difference operator were rather noisy. We can improve this by first smoothing the image with a Gaussian filter before computing derivatives.
         </p>
 
-        <div class="code-block">
-# Create 2D Gaussian
-gaussian_1d = cv.getGaussianKernel(6, 1)
-gaussian_2d = np.outer(gaussian_1d, gaussian_1d.T)
-
-# Sequential Convolution: Smooth first, then differentiate
-im_smooth = scipy.signal.convolve2d(im, gaussian_2d, mode='same')
-Dx_smooth = scipy.signal.convolve2d(im_smooth, Dx, mode='same')
-Dy_smooth = scipy.signal.convolve2d(im_smooth, Dy, mode='same')
-
-# Single Convolution: Create DoG filters
-DoG_x = scipy.signal.convolve2d(gaussian_2d, Dx, mode='same')
-DoG_y = scipy.signal.convolve2d(gaussian_2d, Dy, mode='same')
-Dx_dog = scipy.signal.convolve2d(im, DoG_x, mode='same')
-Dy_dog = scipy.signal.convolve2d(im, DoG_y, mode='same')
-        </div>
 
         <h4>Filter Visualization</h4>
         <div class="filter-display">
@@ -380,31 +356,6 @@ Dy_dog = scipy.signal.convolve2d(im, DoG_y, mode='same')
             The unsharp mask filter can be expressed as: <strong>f_sharp = f + α(f - f_blurred) = (1 + α)f - αf_blurred</strong>
         </p>
 
-        <div class="code-block">
-def unsharp_mask(name, a):
-    # Get image and convert to float
-    im = cv.imread(name + ".jpg", cv.IMREAD_COLOR)
-    im_float = im.astype(np.float32) / 255.0
-    
-    # Create impulse kernel (identity)
-    impulse = np.zeros_like(gaussian_2d)
-    center = impulse.shape[0] // 2
-    impulse[center, center] = 1.0
-    
-    # Create unsharp mask kernel: (1+a)*impulse - a*gaussian
-    unsharp_kernel = (1 + a) * impulse - a * gaussian_2d
-    
-    # Apply unsharp mask to each color channel
-    result = np.zeros_like(im_float)
-    for channel in range(3):
-        result[:,:,channel] = scipy.signal.convolve2d(
-            im_float[:,:,channel], unsharp_kernel, mode='same', boundary='symm')
-    
-    # Clip and save result
-    result = np.clip(result, 0, 1)
-    result_uint8 = (result * 255).astype(np.uint8)
-    cv.imwrite(f"results/{name}_{a}_unsharp_mask.png", result_uint8)
-        </div>
 
         <h4>Sharpening Results on Taj Mahal</h4>
         <div class="image-grid">
@@ -490,5 +441,7 @@ def unsharp_mask(name, a):
             The progression from basic filtering to frequency manipulation illustrates the power and versatility of convolution-based image processing techniques.
         </p>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 </body>
 </html>
