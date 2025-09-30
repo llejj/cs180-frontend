@@ -149,17 +149,14 @@
         
         <h2>Overview</h2>
         <p>
-            This project explores the fascinating world of 2D convolutions and frequency domain processing. We'll build intuitions about filtering operations by implementing convolutions from scratch, working with finite difference operators, and experimenting with frequency manipulation techniques for image sharpening.
+            This project implements fundamental image processing techniques including 2D convolution, edge detection, frequency domain filtering, hybrid images, and multiresolution blending. The work demonstrates core concepts in computer vision through practical implementation and analysis of filtering operations and frequency manipulation.
         </p>
 
         <h2>Part 1: Fun with Filters</h2>
-        <p>
-            In this part, we build intuitions about 2D convolutions and filtering, starting with the humble finite difference as our filter in the x and y directions.
-        </p>
 
-        <h3>Part 1.1: Convolutions from Scratch!</h3>
+        <h3>Part 1.1: Convolutions from Scratch</h3>
         <p>
-            First, let's implement 2D convolution with both four loops and two loops, including proper padding with zero fill values. We'll compare our implementations with the built-in <code>scipy.signal.convolve2d</code> function.
+            This section implements 2D convolution using both four-loop and two-loop approaches with zero-padding. Performance and accuracy are compared against the built-in <code>scipy.signal.convolve2d</code> function.
         </p>
 
         <pre><code class="language-python">def convolve2d_4loops(image, kernel):
@@ -226,7 +223,7 @@ def convolve2d_2loops(image, kernel):
     return output</code></pre>
 
         <p>
-            Performance comparison on a grayscale portrait image with different filters:
+            Performance comparison on grayscale portrait image:
         </p>
         <ul>
             <li><strong>4-loop implementation:</strong> 1.52 seconds</li>
@@ -235,7 +232,7 @@ def convolve2d_2loops(image, kernel):
         </ul>
 
         <p>
-            All implementations produce identical results (within floating point precision), confirming our implementations are correct.
+            All implementations produce identical results within floating point precision, validating the correctness of the custom implementations.
         </p>
 
         <h4>Filter Results on Grayscale Portrait</h4>
@@ -260,7 +257,7 @@ def convolve2d_2loops(image, kernel):
 
         <h3>Part 1.2: Finite Difference Operator</h3>
         <p>
-            Now we'll compute partial derivatives of the cameraman image using finite difference operators D_x = [1, 0, -1] and D_y = [[1], [0], [-1]], then compute the gradient magnitude and create edge images through binarization.
+            This section computes partial derivatives using finite difference operators D_x = [1, 0, -1] and D_y = [[1], [0], [-1]], calculates gradient magnitude, and generates edge images through binarization with threshold selection.
         </p>
 
 
@@ -285,7 +282,7 @@ def convolve2d_2loops(image, kernel):
 
         <h4>Threshold Selection</h4>
         <p>
-            Different threshold values produce different edge detection results. A threshold of 80 was found to provide the best balance between noise suppression and edge preservation:
+            Threshold selection affects edge detection quality. A threshold of 80 provides optimal balance between noise suppression and edge preservation:
         </p>
 
         <div class="threshold-grid">
@@ -309,7 +306,7 @@ def convolve2d_2loops(image, kernel):
 
         <h3>Part 1.3: Derivative of Gaussian (DoG) Filter</h3>
         <p>
-            The results with just the difference operator were rather noisy. We can improve this by first smoothing the image with a Gaussian filter before computing derivatives.
+            Raw finite difference operators produce noisy results. This section applies Gaussian smoothing before derivative computation to reduce noise and improve edge detection quality.
         </p>
 
 
@@ -342,14 +339,14 @@ def convolve2d_2loops(image, kernel):
         </div>
 
         <p>
-            <strong>Key Observations:</strong> The DoG approach produces much cleaner edge detection with reduced noise compared to the raw finite difference operators. Both the sequential and single convolution approaches produce identical results, demonstrating the associative property of convolution.
+            <strong>Results:</strong> The DoG approach significantly reduces noise compared to raw finite difference operators. Sequential and single convolution methods produce identical results, confirming the associative property of convolution.
         </p>
 
         <h2>Part 2: Fun with Frequencies!</h2>
 
-        <h3>Part 2.1: Image "Sharpening"</h3>
+        <h3>Part 2.1: Image Sharpening</h3>
         <p>
-            We can "sharpen" images using the unsharp masking technique. The idea is to subtract a blurred (low-pass filtered) version from the original to extract high frequencies, then add these high frequencies back to enhance sharpness.
+            This section implements unsharp masking for image sharpening. The technique subtracts a low-pass filtered version from the original image to extract high frequencies, then adds amplified high frequencies back to enhance perceived sharpness.
         </p>
 
         <p>
@@ -377,29 +374,29 @@ def convolve2d_2loops(image, kernel):
             </div>
         </div>
 
-        <h4>Sharpening Results on Blurry Guy</h4>
+        <h4>Sharpening Results on Girl</h4>
         <div class="image-grid">
             <div>
-                <img src="blurry_guy.jpg" alt="Original blurry guy">
-                <p class="caption">Original Blurry Image</p>
+                <img src="girl.jpg" alt="Original girl">
+                <p class="caption">Original Image</p>
             </div>
             <div>
-                <img src="results/blurry_guy_1_unsharp_mask.png" alt="Blurry guy alpha=1">
+                <img src="results/girl_1_unsharp_mask.png" alt="Girl alpha=1">
                 <p class="caption">α = 1 (moderate sharpening)</p>
             </div>
             <div>
-                <img src="results/blurry_guy_2_unsharp_mask.png" alt="Blurry guy alpha=2">
+                <img src="results/girl_2_unsharp_mask.png" alt="Girl alpha=2">
                 <p class="caption">α = 2 (strong sharpening)</p>
             </div>
             <div>
-                <img src="results/blurry_guy_4_unsharp_mask.png" alt="Blurry guy alpha=4">
+                <img src="results/girl_4_unsharp_mask.png" alt="Girl alpha=4">
                 <p class="caption">α = 4 (very strong sharpening)</p>
             </div>
         </div>
 
         <h4>Evaluation: Sharp → Blur → Sharpen</h4>
         <p>
-            To evaluate the effectiveness of unsharp masking, we took a sharp image (bird), artificially blurred it, then attempted to sharpen it again:
+            Unsharp masking effectiveness is evaluated by artificially blurring a sharp image (bird) and attempting to restore sharpness:
         </p>
 
         <div class="image-grid">
@@ -418,20 +415,146 @@ def convolve2d_2loops(image, kernel):
         </div>
 
         <p>
-            <strong>Observations:</strong> While unsharp masking can enhance the perception of sharpness by emphasizing edges and high-frequency details, it cannot fully recover information that was lost during the blurring process. The re-sharpened image shows enhanced edges but cannot match the fine detail of the original sharp image. This demonstrates the fundamental limitation that frequency domain processing cannot create information that wasn't originally present.
+            <strong>Results:</strong> Unsharp masking enhances perceived sharpness by emphasizing edges and high-frequency details but cannot recover information lost during blurring. The re-sharpened image shows enhanced edges but lacks the fine detail of the original, demonstrating the fundamental limitation that frequency domain processing cannot create information not originally present.
         </p>
 
-        <h2>Conclusions</h2>
+        <h3>Part 2.2: Hybrid Images</h3>
         <p>
-            This project provided hands-on experience with fundamental concepts in image processing:
+            This section implements hybrid images. Hybrid images combine high-frequency components from one image with low-frequency components from another, creating images with different interpretations at varying viewing distances.
         </p>
-        <ul>
-            <li><strong>Convolution Implementation:</strong> Built intuition about 2D convolution through manual implementation, understanding the importance of kernel flipping and proper padding.</li>
-            <li><strong>Edge Detection:</strong> Explored finite difference operators and learned how Gaussian smoothing can reduce noise in derivative-based edge detection.</li>
-            <li><strong>Frequency Domain Processing:</strong> Demonstrated how unsharp masking can enhance perceived sharpness by manipulating frequency content, while understanding its limitations.</li>
-        </ul>
+
+        <h4>Derek + Nutmeg Hybrid (Detailed Process)</h4>
         <p>
-            The progression from basic filtering to frequency manipulation illustrates the power and versatility of convolution-based image processing techniques.
+            The complete hybrid image creation process is demonstrated using Derek and Nutmeg images:
+        </p>
+
+        <div class="image-comparison">
+            <div>
+                <img src="DerekPicture.jpg" alt="Original Derek">
+                <p class="caption">Original Derek Image</p>
+            </div>
+            <div>
+                <img src="nutmeg.jpg" alt="Original Nutmeg">
+                <p class="caption">Original Nutmeg Image</p>
+            </div>
+        </div>
+
+        <h5>Filtering Process</h5>
+        <div class="image-comparison">
+            <div>
+                <img src="results/05_low_frequencies_derek.png" alt="Low frequencies">
+                <p class="caption">Low Frequencies (Nutmeg)<br>Gaussian filtered for distant viewing</p>
+            </div>
+            <div>
+                <img src="results/06_high_frequencies_derek.png" alt="High frequencies">
+                <p class="caption">High Frequencies (Derek)<br>High-pass filtered for close viewing</p>
+            </div>
+        </div>
+
+        <h5>Final Result and Frequency Analysis</h5>
+        <div class="image-comparison">
+            <div>
+                <img src="results/07_hybrid_final_derek.png" alt="Hybrid final">
+                <p class="caption">Final Hybrid Image<br>(Nutmeg from far, Derek from close)</p>
+            </div>
+            <div>
+                <img src="results/09_frequency_analysis_derek.png" alt="Frequency analysis">
+                <p class="caption">Frequency Domain Analysis<br>Log magnitude of Fourier transforms</p>
+            </div>
+        </div>
+
+        <p>
+            <strong>Process Summary:</strong> Nutmeg's image undergoes low-pass filtering to retain smooth, low-frequency information for distant viewing. Derek's image is high-pass filtered to extract fine details for close viewing. The hybrid combination produces an image appearing as Nutmeg from distance and Derek when viewed closely.
+        </p>
+
+        <h4>Additional Hybrid Images</h4>
+        
+        <h5>Bear + Dog Hybrid</h5>
+        <div class="image-grid">
+            <div>
+                <img src="bear.jpeg" alt="Original Bear">
+                <p class="caption">Original Bear</p>
+            </div>
+            <div>
+                <img src="dog.jpeg" alt="Original Dog">
+                <p class="caption">Original Dog</p>
+            </div>
+            <div>
+                <img src="results/07_hybrid_final_bog.png" alt="Bear Dog hybrid">
+                <p class="caption">Hybrid Result<br>(Bear from far, Dog from close)</p>
+            </div>
+        </div>
+
+        <h5>Penguin + Doctor Hybrid</h5>
+        <div class="image-grid">
+            <div>
+                <img src="penguin.jpeg" alt="Original Penguin">
+                <p class="caption">Original Penguin</p>
+            </div>
+            <div>
+                <img src="doctor.jpeg" alt="Original Doctor">
+                <p class="caption">Original Doctor</p>
+            </div>
+            <div>
+                <img src="results/07_hybrid_final_pengtor.png" alt="Penguin Doctor hybrid">
+                <p class="caption">Hybrid Result<br>(Penguin from far, Doctor from close)</p>
+            </div>
+        </div>
+
+        <h3>Part 2.3: Gaussian and Laplacian Stacks</h3>
+        <p>
+            This section implements Gaussian and Laplacian stacks without downsampling. Stacks maintain original image dimensions at each level, enabling precise multi-resolution blending. The Gaussian stack applies successive filtering while the Laplacian stack captures differences between consecutive Gaussian levels.
+        </p>
+
+        <p>
+            <strong>Implementation:</strong> Unlike pyramids, stacks preserve image dimensions at all levels, preventing resolution loss during multi-resolution processing.
+        </p>
+
+        <h3>Part 2.4: Multiresolution Blending</h3>
+        <p>
+            This section implements multiresolution blending using Gaussian and Laplacian stacks. The method blends images at multiple frequency scales, creating seamless transitions impossible with simple pixel averaging.
+        </p>
+
+        <h4>Apple + Orange Blend (Oraple)</h4>
+        <p>
+            Implementation of the apple-orange blend with vertical seam:
+        </p>
+
+        <div class="image-comparison">
+            <div>
+                <img src="apple.jpeg" alt="Original apple">
+                <p class="caption">Original Apple</p>
+            </div>
+            <div>
+                <img src="orange.jpeg" alt="Original orange">
+                <p class="caption">Original Orange</p>
+            </div>
+        </div>
+
+        <div class="image-comparison">
+            <div>
+                <img src="results/oraple_stack.png" alt="Oraple process visualization">
+                <p class="caption">Multiresolution Blending Process<br>Showing Laplacian stacks and mask levels</p>
+            </div>
+            <div>
+                <img src="results/oraple_blend.png" alt="Final oraple">
+                <p class="caption">Final Oraple Result<br>Seamless apple-orange blend</p>
+            </div>
+        </div>
+
+
+        <p>
+            <strong>Algorithm Overview:</strong>
+        </p>
+        <ol>
+            <li>Create Gaussian stacks for both input images and the blending mask</li>
+            <li>Generate Laplacian stacks from the Gaussian stacks</li>
+            <li>Blend corresponding levels</li>
+            <li>Reconstruct final image by summing all blended Laplacian levels</li>
+        </ol>
+
+        <p>
+            <strong>Key Advantages:</strong> The multiresolution approach blends different frequency components at appropriate scales. Low frequencies blend smoothly across the entire transition region, while high frequencies maintain sharp details where needed. This creates natural-looking seams.
         </p>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
