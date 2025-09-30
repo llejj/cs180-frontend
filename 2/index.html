@@ -56,6 +56,9 @@
         
         .image-comparison img {
             width: 100%;
+            max-width: 400px;
+            max-height: 300px;
+            object-fit: contain;
         }
         
         .image-grid {
@@ -223,12 +226,12 @@ def convolve2d_2loops(image, kernel):
     return output</code></pre>
 
         <p>
-            Performance comparison on grayscale portrait image:
+            Performance comparison on grayscale portrait image with 9x9 box filter:
         </p>
         <ul>
-            <li><strong>4-loop implementation:</strong> 1.52 seconds</li>
-            <li><strong>2-loop implementation:</strong> 1.82 seconds</li>
-            <li><strong>Built-in scipy function:</strong> 0.011 seconds</li>
+            <li><strong>4-loop implementation:</strong> 7.70 seconds</li>
+            <li><strong>2-loop implementation:</strong> 1.76 seconds</li>
+            <li><strong>Built-in scipy function:</strong> 0.80 seconds</li>
         </ul>
 
         <p>
@@ -451,16 +454,16 @@ def convolve2d_2loops(image, kernel):
             </div>
         </div>
 
-        <h5>Final Result and Frequency Analysis</h5>
-        <div class="image-comparison">
-            <div>
-                <img src="results/07_hybrid_final_derek.png" alt="Hybrid final">
-                <p class="caption">Final Hybrid Image<br>(Nutmeg from far, Derek from close)</p>
-            </div>
-            <div>
-                <img src="results/09_frequency_analysis_derek.png" alt="Frequency analysis">
-                <p class="caption">Frequency Domain Analysis<br>Log magnitude of Fourier transforms</p>
-            </div>
+        <h5>Final Result</h5>
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="results/07_hybrid_final_derek.png" alt="Hybrid final" style="max-width: 400px; max-height: 300px; object-fit: contain;">
+            <p class="caption">Final Hybrid Image<br>(Nutmeg from far, Derek from close)</p>
+        </div>
+
+        <h5>Frequency Analysis</h5>
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="results/09_frequency_analysis_derek.png" alt="Frequency analysis" style="max-width: 100%; height: auto;">
+            <p class="caption">Frequency Domain Analysis<br>Log magnitude of Fourier transforms</p>
         </div>
 
         <p>
