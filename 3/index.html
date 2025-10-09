@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 3: Image Warping and Mosaicing</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .image-comparison {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .image-comparison > div {
+            flex: 0 1 48%;
+            margin-bottom: 20px;
+        }
+        
+        .image-comparison img {
+            width: 100%;
+        }
+        
+        .caption {
+            text-align: center;
+            font-style: italic;
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        code {
+            background-color: #f8f9fa;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Project 3: Image Warping and Mosaicing</h1>
+        
+        <h2>Overview</h2>
+        <p>
+            This project implements image warping and mosaicing to create panoramic images. The pipeline includes: shooting image pairs with projective transformations, computing homographies from point correspondences, warping images using bilinear interpolation, and creating rectified images.
+        </p>
+
+        <h2>Part 1: Shoot and Digitize Pictures</h2>
+        <p>I captured two sets of images by fixing the camera's center of projection and rotating to create projective transformations between views.</p>
+        
+        <div class="image-comparison">
+            <div>
+                <img src="media/IMG_2889.png" alt="Hill scene left view">
+                <p class="caption">Hill Scene - Left View</p>
+            </div>
+            <div>
+                <img src="media/IMG_2890.png" alt="Hill scene right view">
+                <p class="caption">Hill Scene - Right View</p>
+            </div>
+        </div>
+
+        <div class="image-comparison">
+            <div>
+                <img src="media/IMG_2893.png" alt="Water scene left view">
+                <p class="caption">Water Scene - Left View</p>
+            </div>
+            <div>
+                <img src="media/IMG_2894.png" alt="Water scene right view">
+                <p class="caption">Water Scene - Right View</p>
+            </div>
+        </div>
+
+        <h2>Part 2: Recover Homographies</h2>
+        <p>
+            I implemented <code>computeH(im1_pts, im2_pts)</code> to recover the 3x3 homography matrix from point correspondences. The function sets up a linear system Ah = b and solves it using least-squares for overdetermined systems.
+        </p>
+
+        <h3>Hill Scene</h3>
+        <img src="media/correspondences_IMG_2889_IMG_2890.png" alt="Hill scene correspondences">
+        <p class="caption">12 correspondences marked in red</p>
+
+        <p><strong>System of Equations:</strong> With 12 correspondences, we get a 24×8 overdetermined system. Each correspondence (x, y) → (x', y') gives two equations:</p>
+        <code style="display:block; padding:10px; margin:10px 0;">
+            x' = (h₁x + h₂y + h₃) / (h₇x + h₈y + 1)<br>
+            y' = (h₄x + h₅y + h₆) / (h₇x + h₈y + 1)
+        </code>
+
+        <p><strong>Recovered Homography Matrix H:</strong></p>
+        <code style="display:block; padding:10px; margin:10px 0; font-family: monospace;">
+            [[ 1.67211069  -0.10786891  -2554.80120]<br>
+            &nbsp;[ 0.35694909   1.41491533  -1338.34264]<br>
+            &nbsp;[ 0.00012137  -0.00000368      1.00000]]
+        </code>
+
+        <h3>Water Scene</h3>
+        <img src="media/correspondences_IMG_2893_IMG_2894.png" alt="Water scene correspondences">
+        <p class="caption">10 correspondences marked in red</p>
+
+        <p><strong>System of Equations:</strong> With 10 correspondences, we get a 20×8 overdetermined system solved using least-squares.</p>
+
+        <p><strong>Recovered Homography Matrix H:</strong></p>
+        <code style="display:block; padding:10px; margin:10px 0; font-family: monospace;">
+            [[ 1.88857127   0.03979495  -3659.07363]<br>
+            &nbsp;[ 0.31551538   1.59075199  -1240.65019]<br>
+            &nbsp;[ 0.00015087   0.00001339      1.00000]]
+        </code>
+
+        <h2>Part 3: Warp the Images</h2>
+        <p>
+            I implemented two warping functions using inverse warping to avoid holes:
+        </p>
+        <ul>
+            <li><code>warpImageNearestNeighbor(im, H)</code> - Fast but creates blocky artifacts</li>
+            <li><code>warpImageBilinear(im, H)</code> - Slower but produces smooth, high-quality results</li>
+        </ul>
+
+        <h3>Rectification Example 1</h3>
+        <img src="media/IMG_2895_rect_comparison.png" alt="Poster rectification">
+        <p class="caption">Rectifying a poster: Original (left), Nearest Neighbor (middle), Bilinear (right)</p>
+
+        <h3>Rectification Example 2</h3>
+        <img src="media/IMG_2896_rect_comparison.png" alt="Document rectification">
+        <p class="caption">Rectifying a document: Original (left), Nearest Neighbor (middle), Bilinear (right)</p>
+
+        <p>
+            <strong>Conclusion:</strong> Bilinear interpolation produces significantly better visual quality than nearest neighbor, with smooth transitions instead of visible pixel boundaries. The trade-off is approximately 4x slower computation time.
+        </p>
+    </div>
+</body>
+</html>
