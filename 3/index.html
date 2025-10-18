@@ -12,18 +12,18 @@
             background-color: #f5f5f5;
             color: #333;
         }
-        
-        h1, h2, h3 {
+
+        h1, h2, h3, h4 {
             color: #2c3e50;
             margin-top: 30px;
         }
-        
+
         h1 {
             text-align: center;
             border-bottom: 2px solid #2c3e50;
             padding-bottom: 10px;
         }
-        
+
         .container {
             background-color: white;
             padding: 30px;
@@ -31,7 +31,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 30px;
         }
-        
+
         img {
             max-width: 100%;
             height: auto;
@@ -40,127 +40,381 @@
             border-radius: 4px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
+
         .image-comparison {
             display: flex;
             justify-content: space-between;
             margin: 20px 0;
             flex-wrap: wrap;
+            gap: 20px;
         }
-        
+
         .image-comparison > div {
             flex: 0 1 48%;
             margin-bottom: 20px;
         }
-        
+
         .image-comparison img {
             width: 100%;
         }
-        
+
+        .single-image {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .single-image img {
+            max-width: 90%;
+        }
+
         .caption {
             text-align: center;
             font-style: italic;
             margin: 10px 0;
             color: #666;
         }
-        
+
         code {
             background-color: #f8f9fa;
             padding: 2px 5px;
             border-radius: 3px;
             font-family: 'Courier New', Courier, monospace;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .section-divider {
+            margin: 40px 0;
+            border-top: 2px solid #e0e0e0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Project 3: Image Warping and Mosaicing</h1>
-        
+
         <h2>Overview</h2>
         <p>
-            This project implements image warping and mosaicing to create panoramic images. The pipeline includes: shooting image pairs with projective transformations, computing homographies from point correspondences, warping images using bilinear interpolation, and creating rectified images.
+            This project explores the fascinating world of image warping and mosaicing, implementing both manual and automatic techniques for creating panoramic images. The goal is to take multiple photographs with overlapping fields of view and stitch them together into a seamless mosaic.
         </p>
 
-        <h2>Part 1: Shoot and Digitize Pictures</h2>
-        <p>I captured two sets of images by fixing the camera's center of projection and rotating to create projective transformations between views.</p>
-        
+        <div class="section-divider"></div>
+
+        <h2>Part A: Manual Image Mosaicing</h2>
+
+        <h3>A.1: Shoot the Pictures</h3>
+        <p>
+            Two sets of images were captured for this project, each consisting of two photographs taken from slightly different viewpoints with overlapping content. The images were taken with a fixed center of projection (rotating the camera about its optical center) to ensure that the relationship between images can be described by a planar homography.
+        </p>
+
+        <h4>Image Set 1</h4>
         <div class="image-comparison">
             <div>
-                <img src="media/IMG_2889.png" alt="Hill scene left view">
-                <p class="caption">Hill Scene - Left View</p>
+                <img src="media/IMG_2889.png" alt="Image 1 from set 1">
             </div>
             <div>
-                <img src="media/IMG_2890.png" alt="Hill scene right view">
-                <p class="caption">Hill Scene - Right View</p>
+                <img src="media/IMG_2890.png" alt="Image 2 from set 1">
             </div>
         </div>
 
+        <h4>Image Set 2</h4>
         <div class="image-comparison">
             <div>
-                <img src="media/IMG_2893.png" alt="Water scene left view">
-                <p class="caption">Water Scene - Left View</p>
+                <img src="media/IMG_2893.png" alt="Image 1 from set 2">
             </div>
             <div>
-                <img src="media/IMG_2894.png" alt="Water scene right view">
-                <p class="caption">Water Scene - Right View</p>
+                <img src="media/IMG_2894.png" alt="Image 2 from set 2">
             </div>
         </div>
 
-        <h2>Part 2: Recover Homographies</h2>
+        <h3>A.2: Recover Homographies</h3>
         <p>
-            I implemented <code>computeH(im1_pts, im2_pts)</code> to recover the 3x3 homography matrix from point correspondences. The function sets up a linear system Ah = b and solves it using least-squares for overdetermined systems.
+            A homography is a 3×3 matrix that describes the projective transformation between two images of the same planar surface. Given a set of corresponding points between two images, we can recover the homography matrix <code>H</code> such that for point <code>p1</code> in image 1 and corresponding point <code>p2</code> in image 2:
+        </p>
+        <p style="text-align: center;">
+            <code>p2 = H × p1</code>
         </p>
 
-        <h3>Hill Scene</h3>
-        <img src="media/correspondences_IMG_2889_IMG_2890.png" alt="Hill scene correspondences">
-        <p class="caption">12 correspondences marked in red</p>
-
-        <p><strong>System of Equations:</strong> With 12 correspondences, we get a 24×8 overdetermined system. Each correspondence (x, y) → (x', y') gives two equations:</p>
-        <code style="display:block; padding:10px; margin:10px 0;">
-            x' = (h₁x + h₂y + h₃) / (h₇x + h₈y + 1)<br>
-            y' = (h₄x + h₅y + h₆) / (h₇x + h₈y + 1)
-        </code>
-
-        <p><strong>Recovered Homography Matrix H:</strong></p>
-        <code style="display:block; padding:10px; margin:10px 0; font-family: monospace;">
-            [[ 1.67211069  -0.10786891  -2554.80120]<br>
-            &nbsp;[ 0.35694909   1.41491533  -1338.34264]<br>
-            &nbsp;[ 0.00012137  -0.00000368      1.00000]]
-        </code>
-
-        <h3>Water Scene</h3>
-        <img src="media/correspondences_IMG_2893_IMG_2894.png" alt="Water scene correspondences">
-        <p class="caption">10 correspondences marked in red</p>
-
-        <p><strong>System of Equations:</strong> With 10 correspondences, we get a 20×8 overdetermined system solved using least-squares.</p>
-
-        <p><strong>Recovered Homography Matrix H:</strong></p>
-        <code style="display:block; padding:10px; margin:10px 0; font-family: monospace;">
-            [[ 1.88857127   0.03979495  -3659.07363]<br>
-            &nbsp;[ 0.31551538   1.59075199  -1240.65019]<br>
-            &nbsp;[ 0.00015087   0.00001339      1.00000]]
-        </code>
-
-        <h2>Part 3: Warp the Images</h2>
+        <h4>Implementation Details</h4>
         <p>
-            I implemented two warping functions using inverse warping to avoid holes:
+            The homography matrix has 8 degrees of freedom (9 elements with scale invariance). Each point correspondence provides 2 constraints, so we need at least 4 point pairs to solve for <code>H</code>. The system is formulated as an overdetermined linear system <code>Ah = b</code> where:
         </p>
         <ul>
-            <li><code>warpImageNearestNeighbor(im, H)</code> - Fast but creates blocky artifacts</li>
-            <li><code>warpImageBilinear(im, H)</code> - Slower but produces smooth, high-quality results</li>
+            <li>Each correspondence contributes 2 rows to the matrix <code>A</code></li>
+            <li>The solution is found using least-squares: <code>h = (A^T A)^(-1) A^T b</code></li>
+            <li>The 8-element vector <code>h</code> is reshaped into a 3×3 matrix with <code>H[2,2] = 1</code></li>
         </ul>
 
-        <h3>Rectification Example 1</h3>
-        <img src="media/IMG_2895_rect_comparison.png" alt="Poster rectification">
-        <p class="caption">Rectifying a poster: Original (left), Nearest Neighbor (middle), Bilinear (right)</p>
+        <h4>Correspondence Visualizations</h4>
+        <p>
+            Below are the manually selected correspondences for each image pair:
+        </p>
 
-        <h3>Rectification Example 2</h3>
-        <img src="media/IMG_2896_rect_comparison.png" alt="Document rectification">
-        <p class="caption">Rectifying a document: Original (left), Nearest Neighbor (middle), Bilinear (right)</p>
+        <div class="single-image">
+            <img src="media/correspondences_IMG_2889_IMG_2890.png" alt="Correspondences for image set 1">
+        </div>
+
+        <div class="single-image">
+            <img src="media/correspondences_IMG_2893_IMG_2894.png" alt="Correspondences for image set 2">
+        </div>
+
+        <h3>A.3: Warp the Images</h3>
+        <p>
+            Once we have the homography matrix, we can warp images from one coordinate system to another. Two interpolation methods were implemented:
+        </p>
+
+        <h4>Interpolation Methods</h4>
+        <ul>
+            <li>
+                <strong>Nearest Neighbor:</strong> Simple and fast, assigns the value of the nearest pixel. Can result in blocky artifacts but useful for understanding the warping process.
+            </li>
+            <li>
+                <strong>Bilinear Interpolation:</strong> Smoothly interpolates between the four nearest pixels using weighted averaging. Produces higher quality results with fewer artifacts.
+            </li>
+        </ul>
 
         <p>
-            <strong>Conclusion:</strong> Bilinear interpolation produces significantly better visual quality than nearest neighbor, with smooth transitions instead of visible pixel boundaries. The trade-off is approximately 4x slower computation time.
+            Both methods use <strong>inverse warping</strong> to avoid holes in the output. For each pixel in the output image, we apply the inverse homography to find the corresponding location in the source image, then sample using interpolation.
         </p>
+
+        <h4>Rectification Examples</h4>
+        <p>
+            To demonstrate the warping capability, two images containing planar surfaces were rectified (warped to a frontal view). This is done by manually selecting the corners of a rectangular region and computing a homography that maps those corners to a perfect square.
+        </p>
+
+        <h4>Rectification 1</h4>
+        <div class="single-image">
+            <img src="media/IMG_2895_rect_comparison.png" alt="Rectification comparison 1">
+        </div>
+
+        <h4>Rectification 2</h4>
+        <div class="single-image">
+            <img src="media/IMG_2896_rect_comparison.png" alt="Rectification comparison 2">
+        </div>
+
+        <h3>A.4: Blend the Images into a Mosaic</h3>
+        <p>
+            The final step is to blend the warped images into a seamless mosaic. The key challenges are:
+        </p>
+        <ul>
+            <li><strong>Coordinate System:</strong> Deciding which image to use as the reference frame</li>
+            <li><strong>Canvas Size:</strong> Computing a canvas large enough to fit both images</li>
+            <li><strong>Blending:</strong> Smoothly combining overlapping regions to avoid visible seams</li>
+        </ul>
+
+        <h4>Implementation Strategy</h4>
+        <p>
+            Our approach keeps the first image as the reference frame (no warping) and warps the second image to align with it using the inverse homography. The blending uses distance transform weighting:
+        </p>
+        <ul>
+            <li>Compute distance from each pixel to the nearest edge/boundary</li>
+            <li>In overlap regions, weight each image's contribution by its distance transform value</li>
+            <li>This creates smooth transitions without ghosting or hard edges</li>
+        </ul>
+
+        <h4>Mosaic 1</h4>
+        <div class="single-image">
+            <img src="media/mosaic_IMG_2889_IMG_2890_comparison.png" alt="Mosaic 1 comparison">
+        </div>
+
+        <h4>Mosaic 2</h4>
+        <div class="single-image">
+            <img src="media/mosaic_IMG_2893_IMG_2894_comparison.png" alt="Mosaic 2 comparison">
+        </div>
+
+        <h4>Mosaic 3</h4>
+        <div class="single-image">
+            <img src="media/mosaic_IMG_2887_IMG_2888_comparison.png" alt="Mosaic 3 comparison">
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h2>Part B: Automatic Feature Matching</h2>
+
+        <p>
+            While manual correspondence selection works well, it's tedious and requires human intervention for each image pair. Part B develops a fully automatic pipeline that detects, describes, and matches features between images without any manual input.
+        </p>
+
+        <h3>B.1: Harris Corner Detection</h3>
+        <p>
+            The first step is to detect interest points (corners) in both images. The Harris corner detector identifies locations where the image has strong gradients in multiple directions. The detector computes:
+        </p>
+        <ul>
+            <li>Image gradients in x and y directions using Sobel filters</li>
+            <li>Structure tensor (second moment matrix) at each pixel</li>
+            <li>Corner response: <code>R = det(M) - k × trace(M)²</code> where k=0.04</li>
+            <li>Threshold to keep only strong corners</li>
+        </ul>
+
+        <h4>Image Set 1: All Harris Corners</h4>
+        <div class="image-comparison">
+            <div>
+                <img src="media/auto_IMG_2889_IMG_2890_corners1_all.png" alt="All corners in image 1">
+            </div>
+            <div>
+                <img src="media/auto_IMG_2889_IMG_2890_corners2_all.png" alt="All corners in image 2">
+            </div>
+        </div>
+
+        <h4>Image Set 2: All Harris Corners</h4>
+        <div class="image-comparison">
+            <div>
+                <img src="media/auto_IMG_2893_IMG_2894_corners1_all.png" alt="All corners in image 1">
+            </div>
+            <div>
+                <img src="media/auto_IMG_2893_IMG_2894_corners2_all.png" alt="All corners in image 2">
+            </div>
+        </div>
+
+        <h4>Adaptive Non-Maximal Suppression (ANMS)</h4>
+        <p>
+            Harris detection produces thousands of corners, many clustered together. ANMS selects a spatially distributed subset of the strongest corners:
+        </p>
+        <ul>
+            <li>For each corner, compute its "suppression radius" - the distance to the nearest stronger corner</li>
+            <li>Select the 500 corners with the largest suppression radii</li>
+            <li>Result: well-distributed corners across the image</li>
+        </ul>
+
+        <h4>Image Set 1: After ANMS</h4>
+        <div class="image-comparison">
+            <div>
+                <img src="media/auto_IMG_2889_IMG_2890_corners1_anms.png" alt="ANMS filtered corners image 1">
+                <p class="caption">Image 1 - 500 spatially distributed corners</p>
+            </div>
+            <div>
+                <img src="media/auto_IMG_2889_IMG_2890_corners2_anms.png" alt="ANMS filtered corners image 2">
+                <p class="caption">Image 2 - 500 spatially distributed corners</p>
+            </div>
+        </div>
+
+        <h4>Image Set 2: After ANMS</h4>
+        <div class="image-comparison">
+            <div>
+                <img src="media/auto_IMG_2893_IMG_2894_corners1_anms.png" alt="ANMS filtered corners image 1">
+                <p class="caption">Image 1 - 500 spatially distributed corners</p>
+            </div>
+            <div>
+                <img src="media/auto_IMG_2893_IMG_2894_corners2_anms.png" alt="ANMS filtered corners image 2">
+                <p class="caption">Image 2 - 500 spatially distributed corners</p>
+            </div>
+        </div>
+
+        <h3>B.2: Feature Descriptor Extraction</h3>
+        <p>
+            For each corner, we extract a feature descriptor - a compact representation that can be compared between images:
+        </p>
+        <ul>
+            <li>Extract 40×40 pixel patch around each corner</li>
+            <li>Convert to grayscale using weighted RGB: <code>0.299R + 0.587G + 0.114B</code></li>
+            <li>Apply Gaussian blur (σ=2.0) for robustness to small misalignments</li>
+            <li>Downsample to 8×8 descriptor</li>
+            <li>Normalize to zero mean and unit variance (bias/gain normalization)</li>
+        </ul>
+        <p>
+            The result is a 64-dimensional feature vector for each corner that is invariant to intensity changes.
+        </p>
+
+        <h4>Example Feature Descriptors</h4>
+        <div class="single-image">
+            <img src="media/auto_IMG_2889_IMG_2890_descriptors.png" alt="Extracted 8x8 descriptors">
+            <p class="caption">4 extracted 8x8 feature descriptors shown in grayscale</p>
+        </div>
+
+        <h3>B.3: Feature Matching</h3>
+        <p>
+            To find correspondences between images, we match feature descriptors using Lowe's ratio test:
+        </p>
+        <ul>
+            <li>For each descriptor in image 1, find its two nearest neighbors in image 2</li>
+            <li>Compute the ratio of distances: <code>ratio = d1 / d2</code></li>
+            <li>Accept match only if <code>ratio < 0.85</code></li>
+            <li>This threshold filters out ambiguous matches</li>
+        </ul>
+
+        <h4>Image Set 1: Initial Matches</h4>
+        <div class="single-image">
+            <img src="media/auto_IMG_2889_IMG_2890_matches.png" alt="Feature matches set 1">
+            <p class="caption">123 initial feature matches using Lowe's ratio test</p>
+        </div>
+
+        <h4>Image Set 2: Initial Matches</h4>
+        <div class="single-image">
+            <img src="media/auto_IMG_2893_IMG_2894_matches.png" alt="Feature matches set 2">
+            <p class="caption">70 initial feature matches using Lowe's ratio test</p>
+        </div>
+
+        <h3>B.4: RANSAC for Robust Homography</h3>
+        <p>
+            Even after the ratio test, some matches are still incorrect (outliers). RANSAC (Random Sample Consensus) robustly estimates the homography despite outliers:
+        </p>
+        <ul>
+            <li><strong>Iterate 5000 times:</strong>
+                <ul>
+                    <li>Randomly select 4 point pairs</li>
+                    <li>Compute homography from these 4 points</li>
+                    <li>Count inliers (points within 5 pixels of predicted location)</li>
+                </ul>
+            </li>
+            <li><strong>Keep the homography with most inliers</strong></li>
+            <li><strong>Refine:</strong> Recompute homography using all inliers</li>
+        </ul>
+
+        <h4>Image Set 1: Manual vs Automatic Stitching</h4>
+        <div class="image-comparison">
+            <div>
+                <img src="media/mosaic_IMG_2889_IMG_2890_panorama.png" alt="Manual mosaic 1">
+                <p class="caption">Manual stitching</p>
+            </div>
+            <div>
+                <img src="media/auto_IMG_2889_IMG_2890_panorama.png" alt="Automatic mosaic 1">
+                <p class="caption">Automatic stitching</p>
+            </div>
+        </div>
+
+        <h4>Image Set 2: Manual vs Automatic Stitching</h4>
+        <div class="image-comparison">
+            <div>
+                <img src="media/mosaic_IMG_2893_IMG_2894_panorama.png" alt="Manual mosaic 2">
+                <p class="caption">Manual stitching</p>
+            </div>
+            <div>
+                <img src="media/auto_IMG_2893_IMG_2894_panorama.png" alt="Automatic mosaic 2">
+                <p class="caption">Automatic stitching</p>
+            </div>
+        </div>
+
+        <h4>Image Set 3: Manual vs Automatic Stitching</h4>
+        <div class="image-comparison">
+            <div>
+                <img src="media/mosaic_IMG_2887_IMG_2888_panorama.png" alt="Manual mosaic 3">
+                <p class="caption">Manual stitching</p>
+            </div>
+            <div>
+                <img src="media/auto_IMG_2887_IMG_2888_panorama.png" alt="Automatic mosaic 3">
+                <p class="caption">Automatic stitching</p>
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
     </div>
 </body>
 </html>
