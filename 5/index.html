@@ -146,17 +146,18 @@
 
         <h2>Overview</h2>
         <p>
-            This project explores diffusion models for image generation, using the DeepFloyd IF model.
-            Diffusion models work by iteratively denoising images, starting from pure noise and gradually
-            refining them into coherent images guided by text prompts.
+            This project covers diffusion models for image generation. Part A uses the pretrained DeepFloyd IF model,
+            and Part B trains a flow matching model on MNIST from scratch.
         </p>
 
         <div class="section-divider"></div>
 
-        <h2>Part 0: Setup</h2>
+        <h2>Part A: Diffusion Models with Pretrained DeepFloyd</h2>
+
+        <h3>0. Setup</h3>
         <p>
             The project uses DeepFloyd IF, a two-stage diffusion model. Stage 1 generates 64x64 images,
-            and Stage 2 upscales to 256x256. For this project, we focus on Stage 1.
+            and Stage 2 upscales to 256x256.
         </p>
         <p>
             <strong>Seed used:</strong> <code>100</code>
@@ -199,9 +200,9 @@
 
         <div class="section-divider"></div>
 
-        <h2>Part 1: Sampling Loops</h2>
+        <h3>1. Sampling Loops</h3>
 
-        <h3>1.1 Implementing the Forward Process</h3>
+        <h4>1.1 Implementing the Forward Process</h4>
         <p>
             The forward process adds noise to a clean image according to the diffusion schedule.
             Given a clean image x<sub>0</sub>, we can obtain a noisy image at timestep t using:
@@ -220,10 +221,9 @@
         </div>
         <p class="caption">Original image, then with noise at t=250, t=500, t=750</p>
 
-        <h3>1.2 Classical Denoising</h3>
+        <h4>1.2 Classical Denoising</h4>
         <p>
-            As a baseline, we try denoising with Gaussian blur. This approach fails because
-            blur cannot recover the high-frequency details lost to noise.
+            Gaussian blur is used as a baseline denoising method.
         </p>
         <div class="image-row large">
             <img src="media/12___Classical_denoising_with_Gaussian_0.png" alt="Noisy at t=250">
@@ -235,11 +235,9 @@
         </div>
         <p class="caption">Noisy images and their Gaussian-blurred versions at t=250, 500, 750</p>
 
-        <h3>1.3 One-Step Denoising</h3>
+        <h4>1.3 One-Step Denoising</h4>
         <p>
-            Using the UNet to estimate and remove noise in a single step with a null prompt embedding.
-            While better than Gaussian blur, one-step denoising still produces blurry results,
-            especially at higher noise levels.
+            The UNet estimates and removes noise in a single step using a null prompt embedding.
         </p>
         <div class="grid-3">
             <div>
@@ -256,9 +254,9 @@
             </div>
         </div>
 
-        <h3>1.4 Iterative Denoising</h3>
+        <h4>1.4 Iterative Denoising</h4>
         <p>
-            Iterative denoising gradually removes noise over multiple steps using strided timesteps.
+            Iterative denoising removes noise over multiple steps using strided timesteps.
             Starting from timestep 690, we denoise through 30 steps with stride 30.
         </p>
         <div class="image-row">
@@ -289,9 +287,9 @@
             </div>
         </div>
 
-        <h3>1.5 Diffusion Model Sampling</h3>
+        <h4>1.5 Diffusion Model Sampling</h4>
         <p>
-            By starting from pure noise (t=990) and iteratively denoising, we can generate new images.
+            Starting from pure noise (t=990) and iteratively denoising generates new images.
             Using the prompt <code>"a high quality photo"</code>:
         </p>
         <div class="image-row large">
@@ -303,14 +301,14 @@
         </div>
         <p class="caption">5 samples generated with "a high quality photo"</p>
 
-        <h3>1.6 Classifier-Free Guidance (CFG)</h3>
+        <h4>1.6 Classifier-Free Guidance (CFG)</h4>
         <p>
-            CFG improves sample quality by combining conditional and unconditional noise estimates:
+            CFG combines conditional and unconditional noise estimates:
         </p>
         <p style="text-align: center;">
             <code>epsilon = epsilon_uncond + gamma * (epsilon_cond - epsilon_uncond)</code>
         </p>
-        <p>Using gamma=7 with prompt <code>"a high quality photo"</code> produces higher quality images:</p>
+        <p>Using gamma=7 with prompt <code>"a high quality photo"</code>:</p>
         <div class="image-row large">
             <img src="media/41___The_conditional_prompt_embedding_0.png" alt="CFG Sample 1">
             <img src="media/42___The_conditional_prompt_embedding_1.png" alt="CFG Sample 2">
@@ -320,11 +318,10 @@
         </div>
         <p class="caption">5 samples with CFG (gamma=7) and "a high quality photo"</p>
 
-        <h3>1.7 Image-to-Image Translation (SDEdit)</h3>
+        <h4>1.7 Image-to-Image Translation (SDEdit)</h4>
         <p>
-            SDEdit adds noise to an existing image and then denoises it. By controlling how much noise
-            is added (via the starting index i_start), we can balance between faithfulness to the original
-            and creative freedom. Using prompt <code>"a high quality photo"</code>:
+            SDEdit adds noise to an existing image and then denoises it. The starting index i_start
+            controls the noise level. Using prompt <code>"a high quality photo"</code>:
         </p>
 
         <h4>SDEdit on Test Image (Campanile)</h4>
@@ -364,8 +361,7 @@
 
         <h4>1.7.1 Editing Hand-Drawn and Web Images</h4>
         <p>
-            SDEdit works particularly well for projecting non-realistic images (sketches, paintings)
-            onto the natural image manifold. Using prompt <code>"a high quality photo"</code>:
+            SDEdit applied to non-realistic images. Using prompt <code>"a high quality photo"</code>:
         </p>
 
         <p><strong>Web Image:</strong></p>
@@ -406,8 +402,8 @@
 
         <h4>1.7.2 Inpainting</h4>
         <p>
-            Inpainting fills in masked regions of an image while keeping the rest intact.
-            At each denoising step, we replace non-masked regions with the properly noised original.
+            Inpainting fills in masked regions. At each denoising step, non-masked regions are
+            replaced with the properly noised original.
         </p>
 
         <p><strong>Campanile:</strong></p>
@@ -460,7 +456,7 @@
 
         <h4>1.7.3 Text-Conditional Image-to-Image Translation</h4>
         <p>
-            Combining SDEdit with text prompts to guide the transformation.
+            SDEdit with text prompts to guide the transformation.
         </p>
 
         <p><strong>Campanile with prompt "a rocket ship":</strong></p>
@@ -499,11 +495,10 @@
 
         <div class="section-divider"></div>
 
-        <h2>Part 1.8: Visual Anagrams</h2>
+        <h3>1.8 Visual Anagrams</h3>
         <p>
-            Visual anagrams are images that look like one thing right-side up and another thing upside down.
-            We create these by averaging noise estimates from two different prompts, one applied to the
-            flipped image:
+            Visual anagrams look like one thing right-side up and another upside down.
+            Created by averaging noise estimates from two prompts, one applied to the flipped image:
         </p>
         <p style="text-align: center;">
             <code>epsilon_1 = CFG(UNet(x_t, t, p1))</code><br>
@@ -537,9 +532,9 @@
 
         <div class="section-divider"></div>
 
-        <h2>Part 1.9: Hybrid Images</h2>
+        <h3>1.9 Hybrid Images</h3>
         <p>
-            Hybrid images combine the low frequencies of one image with the high frequencies of another
+            Hybrid images combine low frequencies of one image with high frequencies of another
             using Factorized Diffusion:
         </p>
         <p style="text-align: center;">
@@ -560,6 +555,203 @@
             <img src="media/132___Hybrid_Image_2__Moon__low_freq____0.png" alt="Moon-Eye Hybrid">
             <p class="caption">Low: "a painting of a giant full moon" / High: "a painting of a detailed human eye"</p>
         </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ==================== PART B: FLOW MATCHING FROM SCRATCH ==================== -->
+
+        <h2>Part B: Flow Matching from Scratch</h2>
+        <p>
+            This part trains a flow matching model on MNIST from scratch.
+        </p>
+
+        <div class="section-divider"></div>
+
+        <h3>1. Training a Single-Step Denoising UNet</h3>
+
+        <h4>1.1 Implementing the UNet</h4>
+        <p>
+            The UNet consists of downsampling and upsampling blocks with skip connections.
+            It uses Conv, DownConv, UpConv, Flatten, and Unflatten operations. The architecture
+            processes 28×28 MNIST images with hidden dimension D=128.
+        </p>
+
+        <h4>1.2 Using the UNet to Train a Denoiser</h4>
+        <p>
+            Noisy images are generated using <code>z = x + σε</code> where <code>ε ~ N(0, I)</code>.
+            Below shows the noising process at different σ levels:
+        </p>
+        <div class="image-row">
+            <img src="media/partb/noising_visualization.png" alt="Noising visualization" style="width: 100%; max-width: 800px; height: auto;">
+        </div>
+        <p class="caption">Noising process with σ = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]</p>
+
+        <h4>1.2.1 Training</h4>
+        <p>
+            The UNet is trained to denoise images with σ=0.5 using MSE loss, Adam optimizer (lr=1e-4),
+            batch size 256, and hidden dimension D=128 for 5 epochs.
+        </p>
+        <div class="single-image">
+            <img src="media/partb/training_loss_curve.png" alt="Training loss curve" style="width: 100%; max-width: 600px; height: auto;">
+        </div>
+        <p class="caption">Training loss curve for σ=0.5 denoising</p>
+
+        <p><strong>Denoising Results:</strong></p>
+        <div class="grid-2">
+            <div>
+                <img src="media/partb/denoising_epoch_1.png" alt="Epoch 1 results" style="width: 100%; height: auto;">
+                <p class="caption">After Epoch 1</p>
+            </div>
+            <div>
+                <img src="media/partb/denoising_epoch_5.png" alt="Epoch 5 results" style="width: 100%; height: auto;">
+                <p class="caption">After Epoch 5</p>
+            </div>
+        </div>
+
+        <h4>1.2.2 Out-of-Distribution Testing</h4>
+        <p>
+            The model (trained on σ=0.5) is tested on different noise levels.
+        </p>
+        <div class="single-image">
+            <img src="media/partb/ood_testing.png" alt="OOD testing" style="width: 100%; max-width: 800px; height: auto;">
+        </div>
+        <p class="caption">OOD testing with σ = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0] (top: noisy input, bottom: denoised output)</p>
+
+        <h4>1.2.3 Denoising Pure Noise</h4>
+        <p>
+            A model is trained to denoise pure Gaussian noise (z = ε where ε ~ N(0, I)).
+        </p>
+        <div class="single-image">
+            <img src="media/partb/training_loss_pure_noise.png" alt="Pure noise training loss" style="width: 100%; max-width: 600px; height: auto;">
+        </div>
+        <p class="caption">Training loss curve for pure noise denoising</p>
+
+        <div class="grid-2">
+            <div>
+                <img src="media/partb/pure_noise_epoch_1.png" alt="Pure noise epoch 1" style="width: 100%; height: auto;">
+                <p class="caption">After Epoch 1</p>
+            </div>
+            <div>
+                <img src="media/partb/pure_noise_epoch_5.png" alt="Pure noise epoch 5" style="width: 100%; height: auto;">
+                <p class="caption">After Epoch 5</p>
+            </div>
+        </div>
+
+        <p>
+            The outputs resemble an average of training digits. With MSE loss, the model predicts
+            the mean to minimize squared error. Since pure noise contains no digit information,
+            the output is a blurry average rather than distinct digits.
+        </p>
+
+        <div class="section-divider"></div>
+
+        <h3>2. Training a Flow Matching Model</h3>
+        <p>
+            Flow matching trains a UNet to predict the flow from noisy to clean data.
+            Linear interpolation: <code>x_t = (1-t)x_0 + t·x_1</code> where x_0 ~ N(0,I) and x_1 is clean data.
+            The flow is <code>u(x_t, t) = x_1 - x_0</code>.
+        </p>
+
+        <h4>2.1 Time-Conditioned UNet</h4>
+        <p>
+            Time conditioning is added using FCBlocks that inject the timestep t into the network.
+            The conditioning is applied via multiplication: <code>unflatten = unflatten * t1</code> and <code>up1 = up1 * t2</code>.
+        </p>
+
+        <h4>2.2 Training the Time-Conditioned UNet</h4>
+        <p>
+            Training uses batch size 64, hidden dimension D=64, initial lr=1e-2 with ExponentialLR scheduler
+            (γ = 0.1^(1/num_epochs)), for 10 epochs.
+        </p>
+        <div class="single-image">
+            <img src="media/partb/time_fm_training_loss.png" alt="Time FM training loss" style="width: 100%; max-width: 600px; height: auto;">
+        </div>
+        <p class="caption">Training loss curve for time-conditioned flow matching</p>
+
+        <h4>2.3 Sampling from the Time-Conditioned UNet</h4>
+        <p>
+            Sampling uses the Euler method: starting from pure noise x_0, iteratively apply
+            <code>x_t = x_t + dt · u_θ(x_t, t)</code> for t from 0 to 1.
+        </p>
+        <div class="grid-3">
+            <div>
+                <img src="media/partb/time_fm_samples_epoch_1.png" alt="Time FM epoch 1" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 1</p>
+            </div>
+            <div>
+                <img src="media/partb/time_fm_samples_epoch_5.png" alt="Time FM epoch 5" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 5</p>
+            </div>
+            <div>
+                <img src="media/partb/time_fm_samples_epoch_10.png" alt="Time FM epoch 10" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 10</p>
+            </div>
+        </div>
+
+        <h4>2.4 Class-Conditioned UNet</h4>
+        <p>
+            Class conditioning uses one-hot encoded digit labels.
+            The conditioning combines time and class: <code>unflatten = c1 * unflatten + t1</code> and <code>up1 = c2 * up1 + t2</code>.
+            10% dropout (p_uncond=0.1) is applied on class conditioning to enable CFG during sampling.
+        </p>
+
+        <h4>2.5 Training the Class-Conditioned UNet</h4>
+        <p>
+            Training uses the same hyperparameters as time-only, with class labels and random dropout.
+        </p>
+        <div class="single-image">
+            <img src="media/partb/class_fm_training_loss.png" alt="Class FM training loss" style="width: 100%; max-width: 600px; height: auto;">
+        </div>
+        <p class="caption">Training loss curve for class-conditioned flow matching</p>
+
+        <h4>2.6 Sampling from the Class-Conditioned UNet</h4>
+        <p>
+            Sampling uses CFG with γ=5.0: <code>u = u_uncond + γ(u_cond - u_uncond)</code>.
+        </p>
+        <div class="grid-3">
+            <div>
+                <img src="media/partb/class_fm_samples_epoch_1.png" alt="Class FM epoch 1" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 1</p>
+            </div>
+            <div>
+                <img src="media/partb/class_fm_samples_epoch_5.png" alt="Class FM epoch 5" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 5</p>
+            </div>
+            <div>
+                <img src="media/partb/class_fm_samples_epoch_10.png" alt="Class FM epoch 10" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 10</p>
+            </div>
+        </div>
+        <p class="caption">4 instances of each digit (0-9) generated with class-conditioned flow matching</p>
+
+        <h4>2.7 Training Without Learning Rate Scheduler</h4>
+        <p>
+            Training without the ExponentialLR scheduler using compensation:
+        </p>
+        <ul>
+            <li>Lower initial learning rate: 1e-3 instead of 1e-2</li>
+            <li>More epochs: 15 instead of 10</li>
+        </ul>
+        <p>
+            The original scheduler decays the LR by ~10× over training. Without it, a constant lower LR
+            with more epochs achieves comparable results.
+        </p>
+        <div class="single-image">
+            <img src="media/partb/no_sched_training_loss.png" alt="No scheduler training loss" style="width: 100%; max-width: 600px; height: auto;">
+        </div>
+        <p class="caption">Training loss curve without LR scheduler (constant lr=1e-3, 15 epochs)</p>
+
+        <div class="grid-2">
+            <div>
+                <img src="media/partb/no_sched_samples_epoch_5.png" alt="No sched epoch 5" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 5</p>
+            </div>
+            <div>
+                <img src="media/partb/no_sched_samples_epoch_15.png" alt="No sched epoch 15" style="width: 100%; height: auto;">
+                <p class="caption">Epoch 15</p>
+            </div>
+        </div>
+        <p class="caption">Samples from training without LR scheduler</p>
 
         <div class="section-divider"></div>
     </div>
